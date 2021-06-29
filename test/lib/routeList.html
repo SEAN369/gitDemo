@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>线路数据管理</title>
+    <link rel="stylesheet" href="element-ui/lib/theme-chalk/index.css">
+    <script src="js/vue.js"></script>
+    <script src="element-ui/lib/index.js"></script>
+    <script src="js/axios-0.18.0.js"></script>
+</head>
+<body>
+<div id="div">
+    <b style="color: red; font-size: 20px;">线路列表</b>
+    <div style="float: right;">
+        <el-button type="primary" @click="showAdd">添加线路</el-button>
+    </div>
+
+    <el-table :data="tableData">
+        <el-table-column prop="rid" label="线路id" >
+        </el-table-column>
+        <el-table-column prop="rname" label="线路名称" >
+        </el-table-column>
+        <el-table-column prop="routeIntroduce" label="线路介绍">
+        </el-table-column>
+        <el-table-column prop="price" label="价格">
+        </el-table-column>
+        <el-table-column label="操作" >
+            <template slot-scope="scope">
+                <img :src="scope.row.rimage" style="width:100px;height:50px;"/>
+            </template>
+        </el-table-column>
+
+        <el-table-column label="操作" >
+            <template slot-scope="props">
+                <el-button type="warning" @click="showEdit(props.row)">编辑</el-button>
+                <el-button type="danger" @click="deleteRoute(props.row)">删除</el-button>
+            </template>
+        </el-table-column>
+    </el-table>
+
+    <!--
+        分页组件
+          @size-change： 当改变每页条数时触发的函数
+          @current-change：当改变页码时触发的函数
+          current-page ：默认的页码
+          :page-sizes：每页条数选择框中显示的值
+          :page-size : 默认的每页条数
+          layout： 分页组件的布局
+              total（总条数）, sizes(每页条数), prev（上一页）, pager(所有的页码), next(下一页), jumper（跳转页码）
+          :total: 总条数
+    -->
+    <el-pagination
+            @size-change="handleSizeChange"
+            @current-change="handleCurrentChange"
+            :current-page="pagination.currentPage"
+            :page-sizes="[5,10,15, 20]"
+            :page-size="pagination.pageSize"
+            layout="total, sizes, prev, pager, next, jumper"
+            :total="pagination.total">
+    </el-pagination>
+
+    <!--
+          :model="formData": 关联数据
+          :rules: 关联校验规则
+          ref： 在获取表单对象时使用
+      -->
+  <el-dialog title="添加旅游线路信息" :visible.sync="dialogTableVisible4add" @close="resetForm('addForm')">
+        <el-form :model="formData"  ref="addForm" label-width="100px" class="demo-ruleForm">
+            <el-form-item label="线路名称">
+                <el-input v-model="formData.rname"></el-input>
+            </el-form-item>
+            <el-form-item label="线路介绍">
+                <el-input v-model="formData.routeIntroduce"></el-input>
+            </el-form-item>
+            <el-form-item label="线路价格" >
+                <el-input v-model="formData.price" ></el-input>
+            </el-form-item>
+            <el-form-item label="线路分类" >
+                <el-select v-model="formData.cid" placeholder="请选择">
+                    <el-option
+                            v-for="item in options"
+                            :key="item.cid"
+                            :label="item.cname"
+                            :value="item.cid">
+                    </el-option>
+                </el-select>
+            </el-form-item>
+            <el-form-item align="right">
+                <el-button type="primary" @click="saveRoute()">添加</el-button>
+                <el-button @click="resetForm('addForm')">重置</el-button>
+            </el-form-item>
+        </el-form>
+    </el-dialog>
+
+    <!--
+      &lt;!&ndash;
+            :model="formData": 关联数据
+            :rules: 关联校验规则
+            ref： 在获取表单对象时使用
+        &ndash;&gt;
+    -->
+
+ <el-dialog title="修改旅游线路信息" :visible.sync="dialogTableVisible4edit" @close="resetForm('editForm')">
+
+        <el-form :model="editFormData"  ref="editForm" label-width="100px" class="demo-ruleForm">
+            <el-form-item label="线路名称">
+                <el-input v-model="editFormData.rname"></el-input>
+                <el-input v-model="editFormData.rid" type="hidden"></el-input>
+            </el-form-item>
+            <el-form-item label="线路介绍">
+                <el-input v-model="editFormData.routeIntroduce"></el-input>
+            </el-form-item>
+            <el-form-item label="线路价格" >
+                <el-input v-model="editFormData.price" ></el-input>
+            </el-form-item>
+            <el-form-item label="线路分类" >
+                <el-select v-model="editFormData.cid" placeholder="请选择">
+                    <el-option
+                        v-for="thisOption in options"
+                        :key="thisOption.cid"
+                        :label="thisOption.cname"
+                        :value="thisOption.cid">
+                    </el-option>
+                </el-select>
+            </el-form-item>
+
+            <el-form-item align="right">
+                <el-button type="warning" @click="updateRoute()">修改</el-button>
+            </el-form-item>
+        </el-form>
+    </el-dialog>
+</div>
+</body>
+<script>
+    new Vue({
+        el: "#div",
+        data: {
+            dialogTableVisible4add: false,  //添加窗口显示状态
+            dialogTableVisible4edit: false, //编辑窗口显示状态
+            formData: {},//添加表单的数据
+            editFormData: {},//编辑表单的数据
+            tableData: [],//表格数据
+            pagination: {
+                currentPage: 1, //当前页
+                pageSize: 5,    //每页显示条数
+                total: 0        //总条数
+            },
+            options: []
+
+        },
+        methods: {
+            findByPage(){
+                //ajax获取所有线路的数据(分页)
+                axios.get("/elemeRoute/RouteServlet?action=selectByPage",{
+                    params:{
+                        pageSize:this.pagination.pageSize,
+                        pageNum:this.pagination.currentPage
+                    }
+                }).then(resp=>{
+                    //将数据展示在表格中(给tableData赋值即可)
+                    console.log(resp.data);
+                    this.tableData = resp.data.list;
+                    //给分页数据赋值
+                    this.pagination.currentPage = resp.data.pageNum;
+                    this.pagination.pageSize = resp.data.pageSize;
+                    this.pagination.total = resp.data.total;
+                })
+            },
+            handleSizeChange(newsize) {
+                //alert("您修改了每页显示的条数")
+                this.pagination.pageSize = newsize;
+                this.findByPage();
+            },
+            handleCurrentChange(newpage) {
+                //alert("您修改了每页显示的条数")
+                this.pagination.currentPage = newpage;
+                this.findByPage();
+            },
+            showAdd(){
+                this.dialogTableVisible4add = true;
+                //获取所有的路线分类
+                axios.get("/elemeRoute/CategoryServlet?action=getCategories")
+                    .then(resp=>{
+                        this.options = resp.data
+                    })
+            },
+            showEdit(row){
+                this.dialogTableVisible4edit=true;
+                //获取所有的路线分类
+                axios.get("/elemeRoute/CategoryServlet?action=getCategories")
+                    .then(resp=>{
+                        this.options = resp.data
+                    })
+
+                //本行数据  row
+                //要赋值的表单  editFormData
+                this.editFormData = row;
+            },
+            updateRoute(){
+
+                //提交要修改的数据即可
+                axios.post("/elemeRoute/RouteServlet?action=update", this.editFormData).then(resp=>{
+                    if(resp.data == "ok") {
+                        this.dialogTableVisible4edit=false;
+                        this.resetForm('editForm');
+                        this.findByPage();
+                    }
+                })
+            },
+            saveRoute(){
+                //发送ajax，提交表单数据
+                axios.post("/elemeRoute/RouteServlet?action=add",this.formData).then(resp=>{
+
+                    //判断是否为ok
+                    if(resp.data == "ok") {
+                        //如果是ok,就关闭窗口
+                        this.dialogTableVisible4add = false;
+                    }
+                })
+            },
+            deleteRoute(row){
+                //console.log(row);
+                //获取要删除的数据id
+                //alert(row.rid)
+                axios.post("/elemeRoute/RouteServlet?action=del&rid="+row.rid).then(resp=>{
+                        if(resp.data == "ok") {
+                            alert("删除成功");
+                            this.findByPage();
+                        }
+                })
+            },
+            resetForm(addForm){
+                this.formData = {};
+            }
+        },
+        created() {
+            //在页面加载时调用分页查询方法
+            this.findByPage()
+        }
+
+    });
+</script>
+</html>

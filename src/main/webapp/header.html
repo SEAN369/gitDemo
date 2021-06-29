@@ -1,0 +1,166 @@
+<link href="css/bootstrap.min.css" rel="stylesheet" xmlns:v-on="http://www.w3.org/1999/xhtml"
+      xmlns:v-on="http://www.w3.org/1999/xhtml" xmlns:v-on="http://www.w3.org/1999/xhtml"
+      xmlns:v-on="http://www.w3.org/1999/xhtml" xmlns:v-on="http://www.w3.org/1999/xhtml"
+      xmlns:v-on="http://www.w3.org/1999/xhtml" xmlns:v-on="http://www.w3.org/1999/xhtml">
+<link rel="stylesheet" type="text/css" href="css/common.css">
+<script src="js/jquery-3.3.1.js"></script>
+<script src="js/bootstrap.min.js"></script>
+<script src="js/getParameter.js"></script>
+<!--<script src="js/vue.js"></script>-->
+<!--<script src="js/axios-0.18.0.js"></script>-->
+
+<div id="headerApp">
+    <!-- 头部 start -->
+    <header id="header">
+        <div class="top_banner">
+            <img src="images/top_banner.jpg" alt="">
+        </div>
+        <div class="shortcut">
+            <!-- 未登录状态  -->
+            <div  class="login_out">
+                <a id="loginBtn" data-toggle="modal" data-target="#loginModel" style="cursor: pointer;">登录</a>
+                <!-- <a id="loginBtn" href="javascript:top.location.href='login.html'" style="cursor: pointer;">登录</a>-->
+                <a href="register.html" style="cursor: pointer;">注册</a>
+            </div>
+            <!-- 登录状态  -->
+            <div  class="login" style="width: 250px;">
+                <span>欢迎回来{{login.username}}</span>
+                <a href="home_index.html" class="collection">个人信息</a>
+                <a >退出</a>
+            </div>
+        </div>
+
+        <div class="header_wrap">
+            <div class="topbar">
+                <div class="logo">
+                    <a href="/"><img src="images/logo.jpg" alt=""></a>
+                </div>
+                <div class="search">
+                    <input name="rname" id="rname" type="text" placeholder="请输入路线名称" class="search_input" autocomplete="off">
+                    <a href="javascript:commitSearch();" class="search-button">搜索</a>
+                </div>
+
+                <div class="hottel">
+                    <div class="hot_pic">
+                        <img src="images/hot_tel.jpg" alt="">
+                    </div>
+                    <div class="hot_tel">
+                        <p class="hot_time">客服热线(9:00-6:00)</p>
+                        <p class="hot_num">400-618-9090</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+    <!-- 头部 end -->
+    <!-- 首页导航 -->
+    <div class="navitem">
+        <ul class="nav">
+            <!--注释分类导航数据，使用js获取后端列表数据更新到这个位置-->
+            <li class="nav-active"><a href="index.html">首页</a></li>
+            <li><a href="route_list.html">门票</a></li>
+            <li><a href="route_list.html">酒店</a></li>
+            <li><a href="route_list.html">香港车票</a></li>
+            <li><a href="route_list.html">出境游</a></li>
+            <li><a href="route_list.html">国内游</a></li>
+            <li><a href="route_list.html">港澳游</a></li>
+            <li><a href="route_list.html">抱团定制</a></li>
+            <li><a href="route_list.html">全球自由行</a></li>
+            <li><a href="favoriterank.html">收藏排行榜</a></li>
+        </ul>
+
+    </div>
+
+    <!-- 登录模态框 -->
+    <div class="modal fade" id="loginModel" tabindex="-1" role="dialog" aria-labelledby="loginModelLable">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <!--头部-->
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span>
+                    </button>
+                    <h4 class="modal-title" id="loginModelLable">
+                        <ul id="myTab" class="nav nav-tabs" style="width: auto">
+                            <li class="active">
+                                <a href="#pwdReg" data-toggle="tab">
+                                    密码登录
+                                </a>
+                            </li>
+
+                        </ul>
+                        <span id="loginErrorMsg" style="color: red;"></span>
+                    </h4>
+
+                </div>
+                <!--内容-->
+                <div id="myTabContent" class="tab-content">
+                    <!--密码登录-->
+                    <div class="tab-pane fade in active" id="pwdReg">
+                        <form id="pwdLoginForm" action="#" method="post">
+                            <input type="hidden" name="action"  value="pwdLogin">
+                            <div class="modal-body">
+                                <div class="form-group">
+                                    <label>用户名</label>
+                                    <input type="text" class="form-control" v-model="user.username"  id="login_username" name="username"
+
+                                           placeholder="请输入用户名">
+                                </div>
+                                <div class="form-group">
+                                    <label>密码</label>
+                                    <input type="password" class="form-control"  v-model="user.password" id="login_password" name="password"
+                                           placeholder="请输入密码">
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <input type="reset" class="btn btn-primary" value="重置">
+                                <input type="button" id="pwdLogin"  @click="loginBtn()" class="btn btn-primary" value="登录"/>
+                                <input type="button" class="btn btn-primary" value="关闭"/>
+                            </div>
+                        </form>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="js/vue.js"></script>
+<script src="js/axios-0.18.0.js"></script>
+<script>
+    new Vue({
+        el:"#headerApp",
+        data:{
+            // 注册后登陆登陆的用户
+            user:{},
+            login:{}
+        },
+        methods:{
+            loginBtn(){
+                alert("读取到了")
+
+               axios.post("/myPr/UserServlet?action=log",this.user).then(resp=>{
+                   if(resp.data=="ok"){//登录成功
+                       document.querySelector('.close').click();//关闭模态框代码
+
+                       this.checkLogin();
+                       alert("恭喜你登录成功")
+                       // this.checkUserLogin();//检查登录状态
+                   }else{
+                       alert("用户名或密码失败")
+                   }
+                })
+            },
+            checkLogin(){
+                axios.get("/myPr/UserServlet?action=checkLLogin").then(resp=>{
+                    this.login= resp.data;
+                })
+            }
+        },
+        created(){
+         // alert("进入再次加载校验区域")
+            this.checkLogin();
+
+        }
+    })
+</script>
