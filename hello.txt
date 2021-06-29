@@ -1,26 +1,13 @@
-hello world , hello world 
-hello world , hello world
-lan xiaopien g兰暗恋你了罚款 奥拉夫啊
-安放的开了房间符骄傲的流口水
-这是第三个版本号
-可以自己卡卡哪块泥看蓝
-的方式记录看发的啊 
-肯定啦舒服
-地方就是fd
-dsflfds
-去瓯绣噶了  alfja
-兰晓鹏 1213
-this is my first reporties
-download it this my code
-this my push and my test 
-pelease try add test
-my request test and thanks 
-again test thanks
-thanks my request to 
-this my test again 
-thanks too
-see goodbyle
-hello my push
-this my two day change
-you should see it
-youtosldfj 
+public class HellWorld {
+    public static void main(String[] args) {
+        System.out.println("hellworld ");
+        System.out.println("hellworld2 ");
+        System.out.println("hellworld2 ");
+        System.out.println("hellworld ");
+        System.out.println("兰晓鹏呢个 ");
+        System.out.println("合并分支");
+        System.out.println("再次合并");
+        System.out.println("mast_test");
+        System.out.println("hot_fix test");
+    }
+}
